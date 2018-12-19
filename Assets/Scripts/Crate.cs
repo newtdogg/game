@@ -20,9 +20,12 @@ public class Crate : MonoBehaviour {
 	}
     void OnMouseDown()
     {
-        controller.crateType = this.type;
-        controller.holdingCrate = true;
-        controller.pickingUpCrate = true;
-        Destroy(gameObject);
+        var dist = Vector3.Distance(gameObject.transform.position, player.transform.position);
+        if(dist < 0.8) {
+            controller.crateType = this.type;
+            controller.holdingCrate = true;
+            controller.heldCrate = this.gameObject;
+            gameObject.transform.position = new Vector3(1000, 0, 0);
+        }
     }
 }
