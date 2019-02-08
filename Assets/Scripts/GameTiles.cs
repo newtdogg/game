@@ -45,7 +45,6 @@ public class GameTiles : MonoBehaviour
             tile.Cost = 1; // TODO: Change this with the proper cost from ruletile
             buildingTilemap.SetTileFlags(localPlace, TileFlags.None);
             buildingTilemap.SetColor(localPlace, Color.clear);
-            Debug.Log(tile.Name);
             tiles.Add(tile.WorldLocation, tile);
         }
     }

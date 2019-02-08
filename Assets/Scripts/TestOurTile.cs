@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
+
 
 public class TestOurTile : MonoBehaviour
 {
@@ -13,6 +13,7 @@ public class TestOurTile : MonoBehaviour
     private List<Vector3Int> tileCoords;
     private List<WorldTile> tileArray;
     private Dictionary<string, Vector3Int> BuildingList;
+    private Dictionary<string, Vector3Int> Building;
     private Vector3Int tileVector;
     private GameObject boundaries;
     private Tilemap boundariesTilemap;
@@ -26,10 +27,16 @@ public class TestOurTile : MonoBehaviour
     private WorldTile worldTile;
     public string status;
     public string tileType;
+    public GameObject player;
+    private PlayerController controller;
 
     void Start()
     {
+        player = GameObject.Find("Player");
+        controller = player.GetComponent<PlayerController>();
         status = "inactive";
+        BuildingList = new Dictionary<string, Vector3Int>();
+        Building = new Dictionary<string, Vector3Int>();
         buildingCanvas = GameObject.Find("BuildingCanvas");
         buildingMenu = GameObject.Find("BuildingMenu");
         buildingMenu.SetActive(false);
@@ -38,10 +45,12 @@ public class TestOurTile : MonoBehaviour
         boundaries = GameObject.Find("Boundaries");
         boundariesTilemap = boundaries.GetComponent<Tilemap>();
         this.getBuildingTileClones();
+		
+       
     }
     // Update is called once per frame
-    private void Update()
-    {
+    private void Update(){
+		
         if (Input.GetKeyDown("b"))
         {
             print("b key was pressed");
@@ -52,9 +61,9 @@ public class TestOurTile : MonoBehaviour
             if (buildingMenu.active == true) {
                 buildingMenu.SetActive(false);
             }
-            
+
             this.getTilesAndCoords();
-                       
+
             if(tileType != ""){
                 this.hoverFourTile();
                 if (Input.GetMouseButtonDown(0)){
@@ -63,7 +72,7 @@ public class TestOurTile : MonoBehaviour
                         status = "inactive";
                         tileType = "";
                     }
-                    
+
 
                     // point = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                     // var worldPoint = new Vector3Int(Mathf.FloorToInt(point.x), Mathf.FloorToInt(point.y), 0);
@@ -72,9 +81,9 @@ public class TestOurTile : MonoBehaviour
                 }
             }
 
-           
+
         }
-        
+
 
     }
 
@@ -109,26 +118,25 @@ public class TestOurTile : MonoBehaviour
     private void highlightTile(Dictionary<Vector3,WorldTile> tiles, Vector3 coords, WorldTile worldTile){
         if (tiles.TryGetValue(coords, out worldTile))
             {
-                Debug.Log(worldTile.Type);
+                // Debug.Log(worldTile.Type);
                 if(worldTile.Type == "Empty"){
                     worldTile.TilemapMember.SetTileFlags(worldTile.LocalPlace, TileFlags.None);
                     worldTile.TilemapMember.SetColor(worldTile.LocalPlace, Color.green);
                 }
                 worldTile.TilemapMember.SetTileFlags(worldTile.LocalPlace, TileFlags.None);
                 worldTile.TilemapMember.SetColor(worldTile.LocalPlace, new Color(1f, 0.2f, 0.2f, 0.3f));
-                
+
             }
     }
     private void getTileLocation(Dictionary<Vector3,WorldTile> tiles, Vector3 coords) {
          if (tiles.TryGetValue(coords, out worldTile))
             {
-                Debug.Log(worldTile.LocalPlace);
-                
+
             }
     }
 
     private bool emptyTile(WorldTile tile){
-        Debug.Log(tile.Type);
+        // Debug.Log(tile.Type);
         if(tile.Type != "Empty"){
             return false;
         }
@@ -145,7 +153,7 @@ public class TestOurTile : MonoBehaviour
 
     private void hoverFourTile() {
         var tiles = GameTiles.instance.tiles; // This is our Dictionary of tiles
-            
+
         highlightTile(tiles, tileCoords[6], tileArray[6]);
         highlightTile(tiles, tileCoords[7], tileArray[7]);
         highlightTile(tiles, tileCoords[11], tileArray[11]);
@@ -165,7 +173,7 @@ public class TestOurTile : MonoBehaviour
         dehighlightTile(tiles, tileCoords[16], tileArray[16]);
         dehighlightTile(tiles, tileCoords[17], tileArray[17]);
         dehighlightTile(tiles, tileCoords[18], tileArray[18]);
-            
+
     }
 
     private void setTile(Dictionary<Vector3,WorldTile> tiles, Vector3Int coords, string building, int index){
@@ -177,18 +185,14 @@ public class TestOurTile : MonoBehaviour
                 worldTile.Type = str;
                 var clonedTile = buildingTilemap.GetTile(buidlingCloneCoords);
                 // var clonedBoundary = building
-                Debug.Log(clonedTile);
                 buildingTilemap.SetTile(coords, clonedTile);
                 boundariesTilemap.SetTile(coords, clonedTile);
                 worldTile.TilemapMember.SetTileFlags(worldTile.LocalPlace, TileFlags.None);
                 worldTile.TilemapMember.SetColor(worldTile.LocalPlace, Color.clear);
 
-            // // returns tilebase at given coords
-            // tileObject = tilemap.GetTile(coords);
-           
-            
-
-            //    Sprite spr = tileObject
+                if(index == 1){
+                    controller.Buildings.Add(str, coords);
+                }
 
                 // tileObject.sprite = $"{building}{1}";
                 // worldTile.TilemapMember.sprite = $"{building}{1}";
