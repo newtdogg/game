@@ -7,7 +7,9 @@ public class mainNPC : MonoBehaviour
     private Dialogue dialogue;
     private GameObject canvas;
     private DialogueManager dialogueManager;
+    private PlayerController playerController;
     private GameObject player;
+    private GameManager gameManager;
     // Start is called before the first frame update
     void Start()
     {
@@ -15,18 +17,23 @@ public class mainNPC : MonoBehaviour
         dialogueManager = GameObject.Find("Dialogue").GetComponent<DialogueManager>();
         dialogueManager.hideDialogue();
         player = GameObject.Find("Player");
+        playerController = player.GetComponent<PlayerController>();
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(gameManager.questManager.Quests["Quest2"]["status"] == "complete"){
+            gameObject.transform.position = new Vector3(-6, -4, 0);
+        }
         isInDialogue();
     }
 
     void OnMouseDown(){
         if(dialogue.inDialogue == false){
             dialogueManager.StartDialogue(dialogue);
-            playerController.GetComponent<playerController>().questManager.Quests["Quest3"]["status"] = "complete";
+            gameManager.questManager.Quests["Quest3"]["status"] = "complete";
         }
     }
 
@@ -48,7 +55,7 @@ public class mainNPC : MonoBehaviour
 
     private void isInDialogue(){
         if(dialogue.inDialogue == true){
-             dialogueManager.continueDialogue(dialogue);
+            dialogueManager.continueDialogue(dialogue);
         }
     }
 }

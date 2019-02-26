@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+
 
 public class EventController : MonoBehaviour
 {
@@ -14,7 +16,6 @@ public class EventController : MonoBehaviour
     private GameObject sleep;
     private GameObject questionBox;
     private GameManager gameManager;
-
 	private PlayerController playerController;
     // Start is called before the first frame update
     void Start()
@@ -30,13 +31,24 @@ public class EventController : MonoBehaviour
         questionBox.transform.GetChild(0).gameObject.transform.GetChild(2).gameObject.GetComponent<Button>().onClick.AddListener(() => notSleep());
         questionBox.SetActive(false);
         sleepImage = sleep.GetComponent<Image>();
-
         playerController = player.GetComponent<PlayerController>();
     }
 
     // Update is called once per frame
     void Update(){
-        if(playerController.checkInPosition(bed1) == true){
+        rebuildStockpile(playerController.mousePointVector);
+        leaveBuilding();
+    }
+
+    private void sleepFadeout(){
+        // sleepImage.color = new Color(0, 0, 0, 0);
+        gameManager.questManager.Quests["Quest2"]["status"] = "complete";
+        gameManager.clock.nextDay();
+        questionBox.SetActive(false);
+    }
+
+    private void checkInBed(){
+         if(playerController.checkInPosition(bed1) == true){
             eventCanvas.transform.GetChild(1).gameObject.SetActive(true);
             // questionBox.transform.GetChild(2).gameObject.GetComponent<Button>();
 		}
@@ -46,17 +58,26 @@ public class EventController : MonoBehaviour
 		}
     }
 
-    private void sleepFadeout(){
-        // sleepImage.color = new Color(0, 0, 0, 0);
-        playerController.questManager.Quests["Quest2"]["status"] = "complete";
-        gameManager.clock.nextDay();
+    private void notSleep(){
         questionBox.SetActive(false);
     }
 
+    private void leaveBuilding(){
+        if(SceneManager.GetActiveScene().name == "TownHall" && playerController.checkOverTile(new Vector3Int(-1, -4, 0))){
+            SceneManager.LoadScene("main_world");
+        }
+    }
 
-
-    private void notSleep(){
-        questionBox.SetActive(false);
+    private void rebuildStockpile(Vector3Int mouseVec){
+        // if(gameManager.questManager.Quests["Quest2"]["status"] == "complete"){
+            if(Input.GetMouseButtonDown(0)){
+                if(gameManager.tiles[mouseVec] == "stockpile"){
+                    // gameManager.questManager.Quests["Quest4"]["status"] = "complete";
+                    gameManager.stockpile = new Stockpile(400);
+                    Debug.Log("hello123");
+                }
+            }
+        // }
     }
 
 }

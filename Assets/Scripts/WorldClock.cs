@@ -6,11 +6,11 @@ using UnityEngine.UI;
 public class WorldClock
 {
     public float day = 0;
-    public float second = 9;
+    public float second = 0;
     public float minute = 0;
-    public float hour = 9;
+    public float hour = 22;
 
-    public int timescale = 60;
+    public int timescale = 300;
 
     public bool calculateTime(){
         second += Time.deltaTime * timescale;

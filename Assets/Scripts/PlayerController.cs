@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour {
 
     // Use this for initialization
     public string crateType;
+    private static PlayerController playerController;
     public bool holdingCrate;
     public GameObject heldCrate;
     public GameObject crateObject;
@@ -28,23 +29,28 @@ public class PlayerController : MonoBehaviour {
     public int runSpeed;
 	public bool recharge;
     private Vector3 dropzone1;
+    public Vector3Int mousePointVector;
     public System.Random ran = new System.Random();
     private Vector3 dropzone2;
     private Vector3 point;
     private SpriteMask spriteMask;
     private SpriteRenderer spriteRenderer;
-    public bool underbeam;
     public bool canMove;
-    public QuestManager questManager;
-    private GameObject questCanvas;
     public Vector3Int playerPosition;
     public Dictionary<Vector3Int, bool> alreadyInPosition;
     
-    private Text questText;
     
     public Vector3 townHallDoor;
    
-
+    // void Awake() {
+    //     if(playerController == null){
+    //         DontDestroyOnLoad(gameObject);
+    //         playerController = this;
+    //     }
+    //     else if (playerController != this){
+    //         Destroy(gameObject);
+    //     }
+    // }
 
 
     // Use this for initialization
@@ -65,12 +71,6 @@ public class PlayerController : MonoBehaviour {
         spriteMask = GetComponent<SpriteMask>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         canMove = true;
-        questManager = new QuestManager();
-        questManager.populateQuests();
-        questText = GameObject.Find("QuestText").GetComponent<Text>();
-        questManager.StartQuest1(questText);
-        questCanvas = GameObject.Find("QuestCanvas");
-        questCanvas.transform.GetChild(0).gameObject.SetActive(false);
         townHallDoor = new Vector3(-13, -3, 0);
         alreadyInPosition = new Dictionary<Vector3Int, bool>();
     }
@@ -85,15 +85,14 @@ public class PlayerController : MonoBehaviour {
         var point = gameObject.transform.localPosition;
         playerPosition = new Vector3Int(Mathf.FloorToInt(point.x), Mathf.FloorToInt(point.y), 0);
         var mousePoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        var mousePointVector = new Vector3Int(Mathf.FloorToInt(mousePoint.x), Mathf.FloorToInt(mousePoint.y), 0);
+        mousePointVector = new Vector3Int(Mathf.FloorToInt(mousePoint.x), Mathf.FloorToInt(mousePoint.y), 0);
+        // vectorLog(mousePointVector);
         Vector2 movement_vector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         playerAnimation(movement_vector);
         getLastPosition(movement_vector);
         staminaCalculator();
         generateCrates();
         // spriteMask.sprite = spriteRenderer.sprite;
-        toggleCanvas();
-        questManager.questsCompleteCheck(questText);
         allAccessDoors(mousePointVector);
     }
 
@@ -140,15 +139,7 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
-    private void toggleCanvas(){
-        if(Input.GetKeyDown(KeyCode.Tab)){
-            if(questCanvas.transform.GetChild(0).gameObject.active == true){
-                questCanvas.transform.GetChild(0).gameObject.SetActive(false);
-            } else {
-                questCanvas.transform.GetChild(0).gameObject.SetActive(true);
-            }
-        }
-    }
+    
 
 	private void dropCrate() {
         point = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -250,4 +241,10 @@ public class PlayerController : MonoBehaviour {
         anyDoorEntry(townHallDoor, mousePosition, "TownHall");
     }
 
+    // VECTOR TOOL
+    private void vectorLog(Vector3Int mousePosition){
+        if(Input.GetMouseButtonDown(0)){
+            Debug.Log(mousePosition);
+        }
+    }
 }

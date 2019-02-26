@@ -13,12 +13,14 @@ public class theMaster : MonoBehaviour
 	private int sentenceIndex;
 	private GameObject canvas;
 	private Vector3Int beam;
+	private GameManager gameManager;
 	
 	void Start() {
 		dialogue = new Dialogue();
         playerController = GameObject.Find("Player").GetComponent<PlayerController>();
 		dialogueManager = GameObject.Find("Dialogue").GetComponent<DialogueManager>();
 		dialogueManager.hideDialogue();
+		gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
 		beam = new Vector3Int(-1, 0, 0);
 	}
 
@@ -29,7 +31,7 @@ public class theMaster : MonoBehaviour
 	public void TriggerDialogue(){
 		if(playerController.checkInPosition(beam) == true){
 			
-			playerController.questManager.Quests["Quest1"]["status"] = "complete";
+			gameManager.questManager.Quests["Quest1"]["status"] = "complete";
 			dialogueManager.StartDialogue(dialogue);
 			// dialogue.dialogueComplete = false;
 
