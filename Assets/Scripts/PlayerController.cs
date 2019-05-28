@@ -13,12 +13,16 @@ public class PlayerController : MonoBehaviour {
     private static PlayerController playerController;
     public bool holdingCrate;
     public GameObject heldCrate;
+    public Crate heldCrateScript;
     public GameObject crateObject;
     public Crate[] crates;
+    public SpriteRenderer crateContent;
     public GameObject nearestCrate;
     private bool aboveCrate;
+    public Sprite[] crateContentSprites;
+    
     public bool running;
-    Rigidbody2D rbody;
+    private Rigidbody2D rbody;
     public Animator anim;
     public Vector3 lastPosition;
     public float stamina;
@@ -28,29 +32,31 @@ public class PlayerController : MonoBehaviour {
     public Dictionary<string, Vector3> Buildings;
     public int runSpeed;
 	public bool recharge;
-    private Vector3 dropzone1;
     public Vector3Int mousePointVector;
+    public Vector3Int townHallPosition;
     public System.Random ran = new System.Random();
-    private Vector3 dropzone2;
+
     private Vector3 point;
     private SpriteMask spriteMask;
     private SpriteRenderer spriteRenderer;
+    private SpriteRenderer crateInnerSprite;
     public bool canMove;
     public Vector3Int playerPosition;
     public Dictionary<Vector3Int, bool> alreadyInPosition;
-    
-    
+
+    public GameManager gameManager;
     public Vector3 townHallDoor;
-   
-    // void Awake() {
-    //     if(playerController == null){
-    //         DontDestroyOnLoad(gameObject);
-    //         playerController = this;
-    //     }
-    //     else if (playerController != this){
-    //         Destroy(gameObject);
-    //     }
-    // }
+    public float timer;
+
+    void Awake() {
+        if(playerController == null){
+            DontDestroyOnLoad(gameObject);
+            playerController = this;
+        }
+        else if (playerController != this){
+            Destroy(gameObject);
+        }
+    }
 
 
     // Use this for initialization
@@ -58,14 +64,11 @@ public class PlayerController : MonoBehaviour {
     {
         lastPosition = new Vector3(0, 0, 0);
         crateType = "Empty";
-        stamina = 2;
-        maxStamina = 2;
+        stamina = 5;
+        maxStamina = 5;
         crateObject = GameObject.Find("CrateClone");
-        crates = Object.FindObjectsOfType<Crate>();
         rbody = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
-        dropzone1 = new Vector3(-7, -3, 0);
-        dropzone2 = new Vector3(-7, -2, 0);
         Buildings = new Dictionary<string, Vector3>();
         food = 0;
         spriteMask = GetComponent<SpriteMask>();
@@ -73,44 +76,35 @@ public class PlayerController : MonoBehaviour {
         canMove = true;
         townHallDoor = new Vector3(-13, -3, 0);
         alreadyInPosition = new Dictionary<Vector3Int, bool>();
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        crateContent = gameObject.transform.GetChild(4).gameObject.GetComponent<SpriteRenderer>();
+        gameObject.transform.GetChild(4).gameObject.SetActive(false);
+        crateInnerSprite = gameObject.transform.GetChild(4).gameObject.GetComponent<SpriteRenderer>();
+        timer = 0;
     }
 
     // Update is called once per frame
     void Update()
     {
-        nearestCrate = GetClosestCrate(crates);
-        if (stamina <= 0 && holdingCrate == true){
-			dropCrate();
-		}
+        spriteRenderer.sortingOrder = 200 - Mathf.RoundToInt(gameObject.transform.position.y * 10);
+        crateInnerSprite.sortingOrder = 201 - Mathf.RoundToInt(gameObject.transform.position.y * 10);
+        if(holdingCrate == false) {
+            gameObject.transform.GetChild(4).gameObject.SetActive(false);
+        }
         var point = gameObject.transform.localPosition;
         playerPosition = new Vector3Int(Mathf.FloorToInt(point.x), Mathf.FloorToInt(point.y), 0);
         var mousePoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mousePointVector = new Vector3Int(Mathf.FloorToInt(mousePoint.x), Mathf.FloorToInt(mousePoint.y), 0);
-        // vectorLog(mousePointVector);
+        // vectorLog(mousePointVector, playerPosition, mousePoint, point);
         Vector2 movement_vector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         playerAnimation(movement_vector);
         getLastPosition(movement_vector);
         staminaCalculator();
-        generateCrates();
+        timer = 0;
+        // generateCrates();
         // spriteMask.sprite = spriteRenderer.sprite;
-        allAccessDoors(mousePointVector);
     }
 
-    GameObject GetClosestCrate(Crate[] crates){
-        GameObject tMin = null;
-        float minDist = Mathf.Infinity;
-        Vector3 currentPos = transform.position;
-        foreach (Crate t in crates)
-        {
-            float dist = Vector3.Distance(t.gameObject.transform.position, currentPos);
-            if (dist < minDist)
-            {
-                tMin = t.gameObject;
-                minDist = dist;
-            }
-        }
-        return tMin;
-    }
 
     public bool checkInPosition(Vector3Int tilePosition){
         if(!alreadyInPosition.ContainsKey(tilePosition)){
@@ -121,10 +115,8 @@ public class PlayerController : MonoBehaviour {
             return true;
         }
         if(playerPosition.x == tilePosition.x && playerPosition.y == tilePosition.y && alreadyInPosition[tilePosition] == true){
-            // Debug.Log("already in position");
            return false;
         } else {
-            // Debug.Log("no longer in position");
             alreadyInPosition[tilePosition] = false;
             return false;
         }
@@ -139,32 +131,32 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
-    
+    public bool checkPlayerNextToTiles(){
+        if((mousePointVector.x + 1 == playerPosition.x && mousePointVector.y + 1 == playerPosition.y)  ||
+          (mousePointVector.x + 0 == playerPosition.x && mousePointVector.y + 1 == playerPosition.y)  ||
+          (mousePointVector.x + -1 == playerPosition.x && mousePointVector.y + 1 == playerPosition.y) ||
+          (mousePointVector.x + 1 == playerPosition.x && mousePointVector.y + 0 == playerPosition.y)  ||
+          (mousePointVector.x + -1 == playerPosition.x && mousePointVector.y + 0 == playerPosition.y) ||
+          (mousePointVector.x + 1 == playerPosition.x && mousePointVector.y + -1 == playerPosition.y) ||
+          (mousePointVector.x + 0 == playerPosition.x && mousePointVector.y + -1 == playerPosition.y) ||
+          (mousePointVector.x + -1 == playerPosition.x && mousePointVector.y + -1 == playerPosition.y))
+          {
+              return true;
+          } else {
+              return false;
+          }
 
-	private void dropCrate() {
-        point = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-		var worldPoint = new Vector3Int(Mathf.FloorToInt(point.x), Mathf.FloorToInt(point.y), 0);
-        
-		var currentPosition = this.gameObject.transform.position;
-        if(worldPoint == dropzone1 || worldPoint == dropzone2){
-            food += 10;
-            Debug.Log($"score: {food}");
-        } else {
-            heldCrate.transform.position = new Vector3(currentPosition.x + (lastPosition.x/2), currentPosition.y + (lastPosition.y/2) - 0.2f, 0);
-        }
-		
-		holdingCrate = false;
-		heldCrate = null;
-	}
+    }
+
+
 
     private void generateCrates(){
         int num = ran.Next(1, 4000);
-        
+
         foreach(KeyValuePair<string, Vector3> building in Buildings)
         {
             // Instantiate(crateObject, building.Value);
             if(num == 1){
-                Debug.Log("here");
                 Instantiate(crateObject, new Vector3(0, 0, 0),  Quaternion.Euler(0,0,0));
             }
         }
@@ -172,6 +164,12 @@ public class PlayerController : MonoBehaviour {
 
     private void playerAnimation(Vector2 movement_vector){
         if(canMove == true){
+            if(holdingCrate == true){
+                anim.SetBool("isHoldingCrate", true);
+                setCrateContent(movement_vector);
+            } else {
+                anim.SetBool("isHoldingCrate", false);
+            }
             if (movement_vector != Vector2.zero) {
                 anim.SetBool("isMoving", true);
                 anim.SetFloat("input_X", movement_vector.x);
@@ -181,20 +179,26 @@ public class PlayerController : MonoBehaviour {
             }
             var speed = movementSpeed();
             rbody.MovePosition(rbody.position + movement_vector * Time.deltaTime * speed);
+        } else {
+            anim.SetBool("isMoving", false);
         }
-        
+
     }
     public void getLastPosition(Vector2 movement_vector){
         if(movement_vector.x != 0 || movement_vector.y != 0){
-            lastPosition.x = movement_vector.x;
-            lastPosition.y = movement_vector.y;
+            if(movement_vector.x != 0 && movement_vector.y == 0){
+                lastPosition.x = movement_vector.x;
+                lastPosition.y = 0;
+            } else if(movement_vector.y != 0 && movement_vector.x == 0){
+                lastPosition.y = movement_vector.y;
+                lastPosition.x = 0;
+            }
         }
     }
 
-    
+
 
     private bool isRunning(){
-        // Debug.Log(stamina);
         if (Input.GetKey("space") && stamina > 0 && holdingCrate == false){
             return true;
         }
@@ -205,7 +209,7 @@ public class PlayerController : MonoBehaviour {
         if (isRunning() || holdingCrate == true){
             stamina -= Time.deltaTime;
                 if (stamina < 0) {
-                stamina = -3;
+                stamina = -6;
 				recharge = true;
             }
         }
@@ -213,7 +217,7 @@ public class PlayerController : MonoBehaviour {
             stamina += Time.deltaTime;
         }
         if (isRunning() == false && stamina > -1 && stamina < 0 && holdingCrate == false){
-            stamina = 2;
+            stamina = 5;
 			recharge = false;
         }
     }
@@ -227,24 +231,26 @@ public class PlayerController : MonoBehaviour {
         return walkSpeed;
     }
 
-    private void anyDoorEntry(Vector3 door, Vector3 mousePosition, string scene){
-        if(Input.GetMouseButtonDown(0)){
-            if(door.y - 1 == playerPosition.y && door.x == playerPosition.x){
-                if(mousePosition == door){
-                    SceneManager.LoadScene(scene);
-                }
-            }
-		}
-    }
-
-    private void allAccessDoors(Vector3Int mousePosition){
-        anyDoorEntry(townHallDoor, mousePosition, "TownHall");
-    }
 
     // VECTOR TOOL
-    private void vectorLog(Vector3Int mousePosition){
+    private void vectorLog(Vector3Int mousePosition, Vector3Int playerPosition, Vector3 mousePoint, Vector3 rawPlayerPosition){
         if(Input.GetMouseButtonDown(0)){
             Debug.Log(mousePosition);
+            Debug.Log(Camera.main.WorldToScreenPoint(mousePoint));
+            Debug.Log(playerPosition);
+            Debug.Log(rawPlayerPosition);
+        }
+    }
+
+    private void setCrateContent(Vector2 movement_vector){
+        if(movement_vector.y == 1){
+            crateContent.sprite = crateContentSprites[0];
+        } else if (movement_vector.x == 1){
+            crateContent.sprite = crateContentSprites[1];
+        } else if (movement_vector.y == -1){
+            crateContent.sprite = crateContentSprites[2];
+        } else if (movement_vector.x == -1){
+            crateContent.sprite = crateContentSprites[3];
         }
     }
 }

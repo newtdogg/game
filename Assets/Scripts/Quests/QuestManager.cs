@@ -8,38 +8,66 @@ public class QuestManager
 	public string name;
 
 	public int sentenceIndex;
+	public bool notification;
+	public int questNum;
     public Dictionary<string, Dictionary<string, string>> Quests;
-    public Dictionary<string, string> currentQuest;
     // public Dictionary<string, string> QuestInfo;
     
 
 
 	public string[] sentences;
 
-	public void StartQuest1(Text textBox){
-		textBox.text = Quests["Quest1"]["title"];
-        currentQuest = Quests["Quest1"];
+	public void startQuest(Image buttonImage, List<Text> textBoxes, string quest){
+		notification = true;
+		buttonImage.color = Color.red;
+		Quests[quest]["status"] = "active";
+		Debug.Log($"started quest: {quest}");
+		multiQuestDisplay(textBoxes);
+	}
+
+	public void multiQuestDisplay(List<Text> QuestBoxes){
+		Debug.Log(QuestBoxes.Count);
+		int count = 0;
+		foreach(KeyValuePair<string, Dictionary<string, string>> kvp in  Quests ){
+			if(kvp.Value["status"] == "active"){
+				if(QuestBoxes[count]){
+					Debug.Log(kvp.Value["status"]);
+					QuestBoxes[count].text = kvp.Value["title"];
+					count += 1;
+				}
+			}	
+		}
 	}
 	public void populateQuests(){
 		Quests = new Dictionary<string, Dictionary<string, string>>();
-		createQuest("Quest1", "incomplete", "Talk to beam");
-		createQuest("Quest2", "incomplete", "Leave the town hall");
+		
+		// REAL QUESTS 
+
+		// createQuest("InvestigateBuilding", "incomplete", "Investigate the old building");
+		// createQuest("Sleep", "incomplete", "Find somewhere to rest in the Town Hall");
+		// createQuest("Explore", "incomplete", "Explore");
+		// createQuest("RebuildStockpile", "incomplete", "Rebuild the stockpile");
+		// createQuest("dud", "incomplete", "Blah blah blah");
+		// createQuest("DeliverCrate", "incomplete", "Deliver the crate to the stockpile");
+
+		// QUESTS FOR TESTING 
+		createQuest("SpeakToBarry", "incomplete", "");
+		createQuest("Explore", "incomplete", "Explore");
+		createQuest("RebuildStockpile", "incomplete", "Rebuild the stockpile");
+		createQuest("dud", "incomplete", "Blah blah blah");
+		createQuest("DeliverCrate", "incomplete", "Deliver the crate to the stockpile");
+		createQuest("TalktoNPC", "incomplete", "Talk to the new arrival");
+		createQuest("BuildFarm", "incomplete", "Build a farm");
 	}
 
-	public void questsCompleteCheck(Text textBox){
-		for(var i = 1; i < Quests.Count; i++){
-			var quest1 = $"Quest{i}";
-			var quest2 = $"Quest{i + 1}";
-			if(Quests[quest1]["status"] == "complete" && Quests[quest2]["status"] == "incomplete"){
-				currentQuest =  Quests[quest2];
-				textBox.text = currentQuest["title"];
-			}
-		}
-
-		// foreach(KeyValuePair<string, Dictionary<string, string>> quest in Quests){
-		// 	if(quest["status"] == complete)
-		// }
+	public void completeQuest(Image buttonImage, List<Text> textBoxes, string quest){
+		Quests[quest]["status"]= "complete";
+		buttonImage.color = Color.green;
+		notification = true;
+		multiQuestDisplay(textBoxes);
+		Debug.Log($"completed quest: {quest}");
 	}
+
 	public void createQuest(string name, string status, string title){
 		var Quest = new Dictionary<string, string>();
         Quest.Add("title", title);

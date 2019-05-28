@@ -29,13 +29,13 @@ public class Stamina : MonoBehaviour {
 		var localStamina = playerController.stamina;
 		if(playerController.stamina < -1){
 			spriteRenderer.color = new Color(1f,0f,0f);
-			staminaPercent = (localStamina + 3)/2;
+			staminaPercent = (localStamina + 6)/2;
 		} else {
 			staminaPercent = localStamina /2;
 		}
 		gameObject.transform.localScale = new Vector3(1, staminaPercent, 0);
 		gameObject.transform.localPosition = new Vector3(0.25f, 0.17f + staminaPercent/8, 0);
-		if (playerController.stamina >= 2){
+		if (playerController.stamina >= 5){
 			spriteRenderer.color = new Color(0f,0f,0f, 0f);
 			staminaBackgroundSprite.color = new Color(0f,0f,0f, 0f);
 		} else {
