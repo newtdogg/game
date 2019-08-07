@@ -7,11 +7,12 @@ using UnityEngine.UI;
 public class Crate : MonoBehaviour {
 
     public GameObject player;
-    private PlayerController controller;
+    public PlayerController controller;
     private SpriteRenderer crateSpriteRen;
-    private EventController eventController;
+    public EventController eventController;
     public string type;
     public float value;
+    public float maxValue;
     public float decayRate;
 
     void Start () {
@@ -19,8 +20,9 @@ public class Crate : MonoBehaviour {
         player = GameObject.Find("Player");
         controller = player.GetComponent<PlayerController>();
         crateSpriteRen = gameObject.GetComponent<SpriteRenderer>();
-        type = "food";
-        value = 5000;
+        type = "grain";
+        value = 200;
+        maxValue = 200;
         decayRate = 3;
     }
 	
@@ -31,7 +33,8 @@ public class Crate : MonoBehaviour {
         if(gameObject.transform.GetChild(0).GetChild(0).gameObject.active == true){
             Vector3 pos = Camera.main.WorldToScreenPoint(gameObject.transform.position);
             gameObject.transform.GetChild(0).GetChild(0).gameObject.transform.position = setNotification(pos);
-        } 
+        }
+        displayValue();
 	}
 
     private void nearCrateLayerOrder(){
@@ -96,6 +99,12 @@ public class Crate : MonoBehaviour {
         
         return defaultPos;
 
+    }
+
+    private void displayValue() {
+        var pos = transform.position;
+        gameObject.transform.GetChild(0).GetChild(1).gameObject.GetComponent<Text>().text = $"{Mathf.Round(value)}/{maxValue}";
+        gameObject.transform.GetChild(0).GetChild(1).position = Camera.main.WorldToScreenPoint(pos);
     }
     
     private void crateValue(){

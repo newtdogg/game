@@ -26,7 +26,9 @@ public class GameManager : MonoBehaviour
     private Scene currentScene;
     public string currentSceneName;
     private Text foodDisplay;
-    private Text lumberDisplay;
+    private GameObject resourceListClone;
+    private List<string> resourceListItems;
+    private int resourceListCount;
     private Text foodPercent;
     public bool paused;
     private Text surplus;
@@ -48,11 +50,12 @@ public class GameManager : MonoBehaviour
             questCanvasList.Add(questCanvas.transform.GetChild(0).GetChild(0).gameObject.transform.GetChild(2).gameObject.GetComponent<Text>());
             setBulletPoints(questCanvasList);
             questCanvas.transform.GetChild(0).gameObject.SetActive(false);
-            lumberDisplay = gameObject.transform.GetChild(2).GetChild(1).gameObject.GetComponent<Text>();
-            foodDisplay = gameObject.transform.GetChild(2).GetChild(2).gameObject.GetComponent<Text>();
-            foodPercent = gameObject.transform.GetChild(2).GetChild(3).gameObject.GetComponent<Text>();
-            surplus = gameObject.transform.GetChild(2).GetChild(4).gameObject.GetComponent<Text>();
+            foodDisplay = gameObject.transform.GetChild(2).GetChild(1).gameObject.GetComponent<Text>();
+            surplus = gameObject.transform.GetChild(2).GetChild(2).gameObject.GetComponent<Text>();
+            resourceListClone = gameObject.transform.GetChild(2).GetChild(3).gameObject;
 			gameObject.transform.GetChild(0).gameObject.SetActive(false);
+            resourceListItems = new List<string>();
+            resourceListCount = 0;
             population = 1;
         }
         else if (manager != this){
@@ -172,15 +175,28 @@ public class GameManager : MonoBehaviour
 
     // ## UI DEBUGGING ##
     private void stockpileStats(){
-        var foodstr = Mathf.Round(stockpile.stats["food"]["amount"]);
-        var lumberstr = stockpile.stats["lumber"]["amount"];
-        var lumbermax = stockpile.stats["lumber"]["max"];
-        var foodmax = stockpile.stats["food"]["max"];
-        var foodperc = Mathf.Round(stockpile.foodSupplyPercentage());
-        foodDisplay.text = $"Food: \n{foodstr}/{foodmax}";
-        lumberDisplay.text = $"Lumber: \n{lumberstr}/{foodmax}";
-        foodPercent.text = $"Food%: \n{foodperc}%";
-        surplus.text = $"Surplus%: \n{stockpile.foodSurplus}%";
+        var foodstr = Mathf.Round(stockpile.totalFood);  
+        var foodperc = Mathf.Round(stockpile.foodSupplyPercentage());      
+        var foodmax = stockpile.foodCapacity;
+        foodDisplay.text = $"Food: {foodstr}/{foodmax} ({foodperc}%)";
+        surplus.text = $"Surplus: {stockpile.foodSurplus}%";
+        var count = 4;
+        foreach(KeyValuePair<string, Resource> resource in stockpile.stats){
+            if(!resourceListItems.Contains(resource.Key)){
+                var resourceListItem = Instantiate(resourceListClone, new Vector3(0, 0, 0),  Quaternion.Euler(0,0,0));
+                resourceListItem.transform.SetParent(gameObject.transform.GetChild(2));
+                resourceListItem.transform.localPosition = new Vector3(0, 168 - (25 * resourceListItems.Count), 0);
+                Debug.Log($"resource list: {resource.Key}");
+                var resourceVal = resource.Value.value;
+                var resourceMax = resource.Value.maxCapacity;
+                resourceListItem.GetComponent<Text>().text = $"{char.ToUpper(resource.Key[0]) + resource.Key.Substring(1)}: {resourceVal}/{resourceMax}"; 
+                resourceListItems.Add(resource.Key);
+                count += 1;
+            } else {
+                gameObject.transform.GetChild(2).GetChild(count).GetComponent<Text>().text = $"{char.ToUpper(resource.Key[0]) + resource.Key.Substring(1)}: {Mathf.Round(resource.Value.value)}/{Mathf.Round(resource.Value.maxCapacity)}";
+                count += 1;
+            }
+        }
     }
 
 

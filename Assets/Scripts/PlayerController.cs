@@ -9,6 +9,13 @@ using UnityEngine.SceneManagement;
 public class PlayerController : MonoBehaviour {
 
     // Use this for initialization
+
+    public Animator hairAnim;
+    public Animator bodyAnim;
+    public Animator clothesAnim;
+    public Animator legsAnim;
+
+
     public string crateType;
     private static PlayerController playerController;
     public bool holdingCrate;
@@ -60,13 +67,16 @@ public class PlayerController : MonoBehaviour {
 
 
     // Use this for initialization
-    void Start()
-    {
+    void Start(){
+        hairAnim = transform.GetChild(6).gameObject.GetComponent<Animator>();
+        bodyAnim = transform.GetChild(7).gameObject.GetComponent<Animator>();
+        clothesAnim = transform.GetChild(8).gameObject.GetComponent<Animator>();
+        legsAnim = transform.GetChild(9).gameObject.GetComponent<Animator>();
+        
         lastPosition = new Vector3(0, 0, 0);
         crateType = "Empty";
         stamina = 5;
         maxStamina = 5;
-        crateObject = GameObject.Find("CrateClone");
         rbody = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         Buildings = new Dictionary<string, Vector3>();
@@ -151,31 +161,44 @@ public class PlayerController : MonoBehaviour {
 
 
     private void generateCrates(){
-        int num = ran.Next(1, 4000);
+        // int num = ran.Next(1, 4000);
 
-        foreach(KeyValuePair<string, Vector3> building in Buildings)
-        {
-            // Instantiate(crateObject, building.Value);
-            if(num == 1){
-                Instantiate(crateObject, new Vector3(0, 0, 0),  Quaternion.Euler(0,0,0));
-            }
-        }
+        // foreach(KeyValuePair<string, Vector3> building in Buildings)
+        // {
+        //     // Instantiate(crateObject, building.Value);
+        //     if(num == 1){
+        //         Instantiate(crateObject, new Vector3(0, 0, 0),  Quaternion.Euler(0,0,0));
+        //     }
+        // }
     }
 
     private void playerAnimation(Vector2 movement_vector){
         if(canMove == true){
             if(holdingCrate == true){
                 anim.SetBool("isHoldingCrate", true);
-                setCrateContent(movement_vector);
+                // setCrateContent(movement_vector);
             } else {
                 anim.SetBool("isHoldingCrate", false);
             }
             if (movement_vector != Vector2.zero) {
-                anim.SetBool("isMoving", true);
-                anim.SetFloat("input_X", movement_vector.x);
-                anim.SetFloat("input_Y", movement_vector.y);
+                hairAnim.SetBool("isMoving", true);
+                hairAnim.SetFloat("input_X", movement_vector.x);
+                hairAnim.SetFloat("input_Y", movement_vector.y);
+                bodyAnim.SetBool("isMoving", true);
+                bodyAnim.SetFloat("input_X", movement_vector.x);
+                bodyAnim.SetFloat("input_Y", movement_vector.y);
+                clothesAnim.SetBool("isMoving", true);
+                clothesAnim.SetFloat("input_X", movement_vector.x);
+                clothesAnim.SetFloat("input_Y", movement_vector.y);
+                legsAnim.SetBool("isMoving", true);
+                legsAnim.SetFloat("input_X", movement_vector.x);
+                legsAnim.SetFloat("input_Y", movement_vector.y);
             } else {
                 anim.SetBool("isMoving", false);
+                hairAnim.SetBool("isMoving", false);
+                bodyAnim.SetBool("isMoving", false);
+                clothesAnim.SetBool("isMoving", false);
+                legsAnim.SetBool("isMoving", false);
             }
             var speed = movementSpeed();
             rbody.MovePosition(rbody.position + movement_vector * Time.deltaTime * speed);
@@ -243,6 +266,7 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void setCrateContent(Vector2 movement_vector){
+        Debug.Log(crateContentSprites[0]);
         if(movement_vector.y == 1){
             crateContent.sprite = crateContentSprites[0];
         } else if (movement_vector.x == 1){

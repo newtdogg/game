@@ -24,6 +24,7 @@ public class EventController : MonoBehaviour
     private bool npcUIactive;
     public GameManager gameManager;
     private GameObject questNotificationParent;
+    public System.Random ran = new System.Random();
     private mainNPC mainNpc;
     private Dictionary<string, int> questNotifications;
     private GameObject npcUI;
@@ -89,6 +90,7 @@ public class EventController : MonoBehaviour
         nextScenePosition = position;
         sceneFader.fadeToLevel(scene);
     }
+
     void OnLevelFinishedLoading(Scene scene, LoadSceneMode mode){
         if(gameManager != null){
             player.transform.position = nextScenePosition;
@@ -137,7 +139,9 @@ public class EventController : MonoBehaviour
         pause();
         gameObject.transform.GetChild(2).gameObject.SetActive(true);
         var name = npcUI.transform.GetChild(0).gameObject.GetComponent<Text>();
+        Debug.Log(name);
         npcUI.transform.GetChild(1).gameObject.GetComponent<Image>().sprite = newNPC.GetComponent<SpriteRenderer>().sprite;
+        Debug.Log(name.text);
         name.text = npc.name;
         npcUIactive = true;
         timer += Time.deltaTime;
@@ -165,9 +169,15 @@ public class EventController : MonoBehaviour
             newNPC = Instantiate(npcClone, new Vector3(-14, -4, 0),  Quaternion.Euler(0,0,0));
             Debug.Log("new NPC");
             var npc = new NPC("larry");
-            var npcScript = npcClone.GetComponent<basicNPC>();
+            int num = ran.Next(1, 100);
+            var r = 118 + (1.06f * num);
+            var g = 98 + (1.16f * num);
+            var b = 66 + (1.36f * num); 
+            newNPC.transform.GetChild(1).gameObject.GetComponent<Renderer>().material.SetColor("skin", new Color(r, g, b));
+            var npcScript = newNPC.GetComponent<basicNPC>();
             npcScript.status = "idle";
             npcScript.npc = npc;
+            gameManager.stockpile.foodSupplyThreshold += 10;
         }
         if(npcUIactive == true){
             if(Input.GetMouseButtonDown(1)){
@@ -209,7 +219,6 @@ public class EventController : MonoBehaviour
                 if(gameManager.tiles[mouseVec] != null){
                     if(gameManager.tiles[mouseVec] == "stockpile"){
                         gameManager.questManager.completeQuest(gameManager.questButtonImage, gameManager.questCanvasList, "RebuildStockpile");
-                        gameManager.questManager.startQuest(gameManager.questButtonImage, gameManager.questCanvasList, "DeliverCrate");
                         gameManager.transform.GetChild(2).gameObject.SetActive(true);
                         gameManager.stockpile = new Stockpile();
                         gameManager.population = 2;
@@ -243,5 +252,4 @@ public class EventController : MonoBehaviour
         questNotificationParent.transform.GetChild(index).gameObject.SetActive(false);
     }
   
-
 }

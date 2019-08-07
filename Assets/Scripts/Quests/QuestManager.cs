@@ -9,6 +9,7 @@ public class QuestManager
 
 	public int sentenceIndex;
 	public bool notification;
+	public string mainActiveQuest;
 	public int questNum;
     public Dictionary<string, Dictionary<string, string>> Quests;
     // public Dictionary<string, string> QuestInfo;
@@ -21,6 +22,7 @@ public class QuestManager
 		notification = true;
 		buttonImage.color = Color.red;
 		Quests[quest]["status"] = "active";
+		mainActiveQuest = quest;
 		Debug.Log($"started quest: {quest}");
 		multiQuestDisplay(textBoxes);
 	}
@@ -58,10 +60,11 @@ public class QuestManager
 		createQuest("DeliverCrate", "incomplete", "Deliver the crate to the stockpile");
 		createQuest("TalktoNPC", "incomplete", "Talk to the new arrival");
 		createQuest("BuildFarm", "incomplete", "Build a farm");
+		createQuest("buildWoodcuttersHut", "incomplete", "Build a Woodcutters Hut");
 	}
 
 	public void completeQuest(Image buttonImage, List<Text> textBoxes, string quest){
-		Quests[quest]["status"]= "complete";
+		Quests[quest]["status"] = "complete";
 		buttonImage.color = Color.green;
 		notification = true;
 		multiQuestDisplay(textBoxes);

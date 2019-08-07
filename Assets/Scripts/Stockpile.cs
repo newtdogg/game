@@ -4,55 +4,71 @@ using UnityEngine;
 
 public class Stockpile
 {
-    public Dictionary<string, Dictionary<string, float>> stats;
+    public Dictionary<string, Resource> stats;
     public Dictionary<string, float> resource;
     public int decayrate;
+    public float totalFood;
     public int foodSupplyThreshold;
     public float foodSurplus;
+    private ResourceList resourceList;
+    public float foodCapacity;
 
-    public Stockpile(float lumberAmount = 400, float foodAmount = 400){
-        foodSurplus = 96;
+    public Stockpile(){
+        foodSurplus = 99.9f;
         foodSupplyThreshold = 200;
-        stats = new Dictionary<string,  Dictionary<string, float>>();
-        var foodDic = new Dictionary<string, float>{
-            { "amount", foodAmount },
-            { "max", 1000 }
-        };
-        var lumberDic = new Dictionary<string, float>{
-            { "amount", lumberAmount },
-            { "max", 1000 }
-        };
-        stats.Add("food", foodDic);
-        stats.Add("lumber", lumberDic);
-        decayrate = 4;
+        totalFood = 0f;
+        foodCapacity = 0f;
+        stats = new Dictionary<string,  Resource>();
+        resourceList = new ResourceList();
+        stats.Add("grain", resourceList.grain);
+        stats.Add("lumber", resourceList.lumber);
     }
 
     public void updateStockpile(float population){
-        stats["food"]["amount"] -= updateFood(population);
+        totalFood = updateFood(population);
+        surplusRate();
         removeSurplus();
     }
 
     public float updateFood(float population){
-        return (Time.deltaTime/decayrate) * population;
+        var allFood = 0f;
+        var foodCount = 0f;
+        var totalCapacity = 0f;
+        foreach(KeyValuePair<string, Resource> resource in stats){
+            var resourceDic = resource.Value;
+            if(resourceDic.group == "Food") {
+                // Debug.Log(resourceDic.value);
+                resourceDic.value -= (Time.deltaTime/resourceDic.decayRate) * population;
+                foodCount += 1;
+                allFood += resourceDic.value;
+                totalCapacity += resourceDic.maxCapacity;
+            }
+        }
+        foodCapacity = totalCapacity/foodCount;
+        return allFood/foodCount;
     }
 
     public float foodSupplyPercentage(){
-        return (stats["food"]["amount"]/stats["food"]["max"]) * 100;
+        return (totalFood/foodCapacity) * 100;
     }
 
     public void surplusRate(){
-        if(stats["food"]["amount"] > foodSupplyThreshold){
-            var diff = stats["food"]["amount"] - foodSupplyThreshold;
-            foodSurplus += diff * 0.001f;
+        if(totalFood > foodSupplyThreshold){
+            var diff = totalFood - foodSupplyThreshold;
+            foodSurplus += diff * 0.1f;
         }
     }
 
     private void removeSurplus(){
-        foreach(KeyValuePair<string, Dictionary<string, float>> resource in stats){
+        foreach(KeyValuePair<string, Resource> resource in stats){
             var resourceDic = resource.Value;
-            if(resourceDic["amount"] > resourceDic["max"]){
-                resourceDic["amount"] = resourceDic["max"];
+            if(resourceDic.value > resourceDic.maxCapacity){
+                resourceDic.value = resourceDic.maxCapacity;
             }
         }
+    }
+
+    public void updateStat(string stat, float amount) {
+        stats[stat].value += amount;
     }
 }

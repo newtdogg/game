@@ -30,10 +30,14 @@ public class StockpileSprite : MonoBehaviour {
                     gameManager.questManager.completeQuest(gameManager.questButtonImage, gameManager.questCanvasList, "DeliverCrate");
                     gameManager.questManager.startQuest(gameManager.questButtonImage, gameManager.questCanvasList, "TalktoNPC");
                 }
-                Debug.Log(gameManager.stockpile.stats[playerController.heldCrateScript.type]);
-                gameManager.stockpile.stats[playerController.heldCrateScript.type]["amount"] += playerController.heldCrateScript.value;
-                gameManager.stockpile.surplusRate();
+                // Debug.Log(gameManager.stockpile.stats[playerController.heldCrateScript.type]);
+                Debug.Log(gameManager.stockpile.stats);
+                gameManager.stockpile.stats[playerController.heldCrateScript.type].value += playerController.heldCrateScript.value;
+                Debug.Log(playerController.heldCrateScript.value);
+                Debug.Log(gameManager.stockpile.stats[playerController.heldCrateScript.type].value);
+                Destroy(playerController.heldCrate);
                 playerController.heldCrate = null;
+                playerController.heldCrateScript = null;
                 playerController.holdingCrate = false;
             }
         }

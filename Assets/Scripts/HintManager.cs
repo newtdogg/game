@@ -6,10 +6,12 @@ using UnityEngine.UI;
 public class HintManager : MonoBehaviour
 {
     // Start is called before the first frame update
+    public string currentScene;
     public bool inHint;
     private Image hintImage;
     private string currentHint;
-    private PlayerBasicIntro playerController;
+    private PlayerBasicIntro playerBasicController;
+    private PlayerController playerController;
     public float timer;
 
      private static HintManager hintManager;
@@ -23,9 +25,13 @@ public class HintManager : MonoBehaviour
         }
     }
     void Start(){
-        playerController = GameObject.Find("Player").GetComponent<PlayerBasicIntro>();
         hintImage = gameObject.transform.GetChild(0).GetChild(1).gameObject.GetComponent<Image>();
-        setHint("Find Shelter!", "wasd");
+        if(currentScene == "MainWorld") {
+            playerController = GameObject.Find("Player").GetComponent<PlayerController>();
+        } else {
+            playerBasicController = GameObject.Find("Player").GetComponent<PlayerBasicIntro>();
+            setHint("Find Shelter!", "wasd");
+        }
         timer = 0;
     }
 
@@ -38,7 +44,7 @@ public class HintManager : MonoBehaviour
                     setHint("Grab a torch from the campfire", "wasd");
                     return;
                 }
-                playerController.canMove = true;
+                playerBasicController.canMove = true;
                 gameObject.transform.GetChild(0).gameObject.SetActive(false);
                 inHint = false;
             }
@@ -50,9 +56,9 @@ public class HintManager : MonoBehaviour
         gameObject.transform.GetChild(0).gameObject.SetActive(true);
         hintImage.sprite = Resources.Load<Sprite>($"Hints/{hintImageName}");
         gameObject.transform.GetChild(0).GetChild(0).gameObject.GetComponent<Text>().text = hint;
-        playerController.GetComponent<Animator>().SetBool("isMoving", false);
+        // playerController.GetComponent<Animator>().SetBool("isMoving", false);
         inHint = true;
-        playerController.canMove = false;
+        playerBasicController.canMove = false;
         currentHint = hint;
         Debug.Log(hint);
     }
