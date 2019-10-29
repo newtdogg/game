@@ -30,7 +30,6 @@ public class EventController : MonoBehaviour
     private GameObject npcUI;
 	private PlayerController playerController;
 
-    private GameObject newNPC;
     private SceneFadeout sceneFader;
     public float timer;
 
@@ -54,6 +53,13 @@ public class EventController : MonoBehaviour
         npcUI = gameObject.transform.GetChild(2).gameObject;
         npcUI.SetActive(false);
         timer = 0;
+
+        gameManager.transform.GetChild(2).gameObject.SetActive(true);
+        gameManager.stockpile = new Stockpile();
+        gameManager.population = 2;
+
+        // testing in mainworld
+        npcClone = GameObject.Find("NPCclone");
     }
 
     // Update is called once per frame
@@ -61,7 +67,7 @@ public class EventController : MonoBehaviour
         pauseToggle();
         if(paused == false){
             checkInBed();
-            rebuildStockpile(playerController.mousePointVector);
+            // rebuildStockpile(playerController.mousePointVector);
             if (playerController.stamina <= 0 && playerController.holdingCrate == true){
                 dropCrate(playerController.mousePointVector);
             }
@@ -74,11 +80,10 @@ public class EventController : MonoBehaviour
                 dialogueManager.nextSentence();
             }
         }
-        if(npcUI.active == true && Input.GetMouseButtonDown(0) && timer == 0) {
-            Debug.Log("heythere");
-            npcUI.SetActive(false);
-            unpause();
-        }
+        // if(npcUI.active == true && Input.GetMouseButtonDown(0) && timer == 0) {
+        //     npcUI.SetActive(false);
+        //     unpause();
+        // }
         // Not sure about this one chief
         if(gameManager.stockpile != null){
             createNPCcheck();
@@ -94,7 +99,7 @@ public class EventController : MonoBehaviour
     void OnLevelFinishedLoading(Scene scene, LoadSceneMode mode){
         if(gameManager != null){
             player.transform.position = nextScenePosition;
-            Debug.Log("next scene pos");
+            Debug.Log($"next scene pos {nextScenePosition}");
         }
         if(gameManager) {
             if (gameManager.currentSceneName == "TownHallTutorial2") {
@@ -136,19 +141,21 @@ public class EventController : MonoBehaviour
 
 
     public void npcUILoad(NPC npc){
-        pause();
+        // pause();
         gameObject.transform.GetChild(2).gameObject.SetActive(true);
         var name = npcUI.transform.GetChild(0).gameObject.GetComponent<Text>();
-        Debug.Log(name);
-        npcUI.transform.GetChild(1).gameObject.GetComponent<Image>().sprite = newNPC.GetComponent<SpriteRenderer>().sprite;
-        Debug.Log(name.text);
+        npcUI.transform.GetChild(1).gameObject.GetComponent<Image>().sprite = npc.gameObject.GetComponent<SpriteRenderer>().sprite;
+        npcUI.transform.GetChild(2).gameObject.GetComponent<Text>().text = $"strength: {npc.stats["strength"]}\n acuity: {npc.stats["acuity"]}\n rapidity: {npc.stats["rapidity"]}\n dexterity: {npc.stats["dexterity"]}\n fortitude: {npc.stats["dexterity"]}";
+        npcUI.transform.GetChild(3).GetComponent<Button>().onClick.AddListener(() => npc.employment = "idle");
+        npcUI.transform.GetChild(4).GetComponent<Button>().onClick.AddListener(() => npc.employment = "moving crates");
+        npcUI.transform.GetChild(5).GetComponent<Button>().onClick.AddListener(() => gameObject.transform.GetChild(2).gameObject.SetActive(false));
+        Debug.Log(npc.employment);
         name.text = npc.name;
         npcUIactive = true;
         timer += Time.deltaTime;
-        Debug.Log("loaded");
+        // npcUI.transform.GetChild(1).
+        Debug.Log($"loaded {name.text}");
     }
-
-
 
     private void dropCrate(Vector3Int mouseVec) {
 		var currentPosition = playerController.transform.position;
@@ -165,19 +172,24 @@ public class EventController : MonoBehaviour
 
     public void createNPCcheck(){
         if(gameManager.stockpile.foodSurplus >= 100){
-            gameManager.stockpile.foodSurplus = 0;
-            newNPC = Instantiate(npcClone, new Vector3(-14, -4, 0),  Quaternion.Euler(0,0,0));
-            Debug.Log("new NPC");
-            var npc = new NPC("larry");
-            int num = ran.Next(1, 100);
-            var r = 118 + (1.06f * num);
-            var g = 98 + (1.16f * num);
-            var b = 66 + (1.36f * num); 
-            newNPC.transform.GetChild(1).gameObject.GetComponent<Renderer>().material.SetColor("skin", new Color(r, g, b));
-            var npcScript = newNPC.GetComponent<basicNPC>();
-            npcScript.status = "idle";
-            npcScript.npc = npc;
-            gameManager.stockpile.foodSupplyThreshold += 10;
+            if(gameManager.population < gameManager.populationMax){
+                gameManager.stockpile.foodSurplus = 0;
+                var newNPC = Instantiate(npcClone, new Vector3(24, 24, 0),  Quaternion.Euler(0,0,0));
+                Debug.Log("new NPC");
+                var npc = new NPC("larry", newNPC);
+                int num = ran.Next(1, 100);
+                var r = 118 + (1.06f * num);
+                var g = 98 + (1.16f * num);
+                var b = 66 + (1.36f * num); 
+                newNPC.transform.GetChild(1).gameObject.GetComponent<Renderer>().material.SetColor("skin", new Color(r, g, b));
+                var npcScript = newNPC.GetComponent<basicNPC>();
+                npcScript.status = "idle";
+                npcScript.npc = npc;
+                gameManager.stockpile.foodSupplyThreshold += 10;
+            } else {
+                // This should appear as a warning
+                Debug.Log("Need more housing space");
+            }
         }
         if(npcUIactive == true){
             if(Input.GetMouseButtonDown(1)){
@@ -213,25 +225,23 @@ public class EventController : MonoBehaviour
         playerController.canMove = true;
     }
 
-    private void rebuildStockpile(Vector3Int mouseVec){
-        if(dialogueManager.inDialogue == false && gameManager.questManager.Quests["RebuildStockpile"]["status"] == "active" && SceneManager.GetActiveScene().name == "MainWorld"){
-            if(Input.GetMouseButtonDown(0)){
-                if(gameManager.tiles[mouseVec] != null){
-                    if(gameManager.tiles[mouseVec] == "stockpile"){
-                        gameManager.questManager.completeQuest(gameManager.questButtonImage, gameManager.questCanvasList, "RebuildStockpile");
-                        gameManager.transform.GetChild(2).gameObject.SetActive(true);
-                        gameManager.stockpile = new Stockpile();
-                        gameManager.population = 2;
-                        var stockpile = GameObject.Find("Stockpile");
-                        var sprite = stockpile.GetComponent<SpriteRenderer>();
-                        sprite.sortingOrder = 10;
-                        questmarkActive("SpeakToNPC");
-                        questmarkInactive("RebuildStockpile");
-                    }
-                }
-            }
-        }
-    }
+    // private void rebuildStockpile(Vector3Int mouseVec){
+    //     if(!(gameManager.questManager.Quests["RebuildStockpile"]["status"] == "complete")){
+    //     // if(dialogueManager.inDialogue == false && gameManager.questManager.Quests["RebuildStockpile"]["status"] == "active" && SceneManager.GetActiveScene().name == "MainWorld"){
+    //         if(Input.GetMouseButtonDown(0)){
+    //             if(gameManager.tiles[mouseVec] != null){
+    //                 if(gameManager.tiles[mouseVec] == "stockpile"){
+    //                     gameManager.questManager.completeQuest(gameManager.questButtonImage, gameManager.questCanvasList, "RebuildStockpile");
+                        
+    //                     // var stockpile = GameObject.Find("Stockpile");
+    //                     // var sprite = stockpile.GetComponent<SpriteRenderer>();
+    //                     // questmarkActive("SpeakToNPC");
+    //                     // questmarkInactive("RebuildStockpile");
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
     private void setQuestMarks(){
         addQuest("SpeakToNPC", 0);

@@ -49,21 +49,22 @@ public class GameTiles : MonoBehaviour
             tiles.Add(tile.WorldLocation, tile);
         }
 
-        for(var y = 11; y > 7; y--) {
-            for(var x = -33; x < 13; x++) {
-                var coords = new Vector3Int(x, y, 0);
+        string[,] map = new string[,]{
+            {"tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "building", "building", "building", "building", "building", "building", "tree", "tree", "tree", "tree", "tree", "grass", "grass", "grass", "grass", "tree", "tree", "tree", "tree"},
+            {"tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "building", "building", "building",  "building", "building", "building", "building", "tree", "tree", "tree", "tree", "tree", "tree", "grass", "grass", "grass", "tree", "tree", "tree"},
+            {"tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "building", "building", "building",  "building", "building", "building", "building", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree"},
+            {"tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "building", "building", "building",  "building", "building", "building", "building", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree"},
+            {"tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "tree", "building", "building", "building",  "building", "building", "building", "building", "building", "tree", "tree", "tree", "tree", "tree", "grass", "grass", "grass", "tree", "tree", "tree"},
+            {"tree", "tree", "tree", "tree", "tree", "tree", "grass", "grass", "grass", "building", "building", "building",  "building", "building", "building", "building", "building", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "tree", "tree"},
+            {"tree", "tree", "tree", "tree", "tree", "tree", "grass", "grass", "grass", "grass", "grass", "grass",  "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "tree", "tree"},
+            {"tree", "tree", "tree", "tree", "tree", "grass", "grass", "grass", "grass", "grass", "grass", "grass",  "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "tree", "tree"}
+        };
+
+        for(var y = 0; y < 7; y++) {
+            for(var x = 0; x < 28; x++) {
+                var coords = new Vector3Int(14 + x, 31 - y, 0);
                 if (tiles.TryGetValue(coords, out worldTile)){
-                    Debug.Log(worldTile);
-                   worldTile.Type = "tree";
-                }
-            }
-        }
-        for(var y = 4; y < 5; y++) {
-            for(var x = -20; x < -17; x++) {
-                var coords = new Vector3Int(x, y, 0);
-                if (tiles.TryGetValue(coords, out worldTile)){
-                    Debug.Log(worldTile);
-                    worldTile.Type = "stone";
+                    worldTile.Type = map[y, x];
                 }
             }
         }

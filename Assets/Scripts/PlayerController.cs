@@ -39,11 +39,17 @@ public class PlayerController : MonoBehaviour {
     public Dictionary<string, Vector3> Buildings;
     public int runSpeed;
 	public bool recharge;
+
+    private InventorySceneManager inventorySceneManager;
+    public GameObject inventoryActive;
+    private GameObject inventory;
     public Vector3Int mousePointVector;
     public Vector3Int townHallPosition;
     public System.Random ran = new System.Random();
 
     private Vector3 point;
+    public int maxSlots;
+    public int inventorySlot;
     private SpriteMask spriteMask;
     private SpriteRenderer spriteRenderer;
     private SpriteRenderer crateInnerSprite;
@@ -81,6 +87,7 @@ public class PlayerController : MonoBehaviour {
         anim = GetComponent<Animator>();
         Buildings = new Dictionary<string, Vector3>();
         food = 0;
+        walkSpeed = 5;
         spriteMask = GetComponent<SpriteMask>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         canMove = true;
@@ -91,6 +98,9 @@ public class PlayerController : MonoBehaviour {
         gameObject.transform.GetChild(4).gameObject.SetActive(false);
         crateInnerSprite = gameObject.transform.GetChild(4).gameObject.GetComponent<SpriteRenderer>();
         timer = 0;
+        inventory = gameObject.transform.GetChild(10).gameObject;
+        inventoryActive = inventory.transform.GetChild(0).gameObject;
+        inventorySceneManager = GameObject.Find("InventorySceneManager").GetComponent<InventorySceneManager>();
     }
 
     // Update is called once per frame
@@ -101,6 +111,7 @@ public class PlayerController : MonoBehaviour {
         if(holdingCrate == false) {
             gameObject.transform.GetChild(4).gameObject.SetActive(false);
         }
+        maxSlots = 1;
         var point = gameObject.transform.localPosition;
         playerPosition = new Vector3Int(Mathf.FloorToInt(point.x), Mathf.FloorToInt(point.y), 0);
         var mousePoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -109,11 +120,41 @@ public class PlayerController : MonoBehaviour {
         Vector2 movement_vector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         playerAnimation(movement_vector);
         getLastPosition(movement_vector);
-        staminaCalculator();
+        // staminaCalculator();
         timer = 0;
         // generateCrates();
         // spriteMask.sprite = spriteRenderer.sprite;
+        inventoryScroll();
+        inventorySceneManager.inventoryActive = inventoryActive.transform.GetSiblingIndex();
     }
+
+    private void inventoryScroll(){
+        if(Input.GetAxis("Mouse ScrollWheel") != 0){
+            inventorySlot += (int) (Input.GetAxis("Mouse ScrollWheel") * 10);
+            if(inventorySlot > maxSlots) {
+                inventorySlot = 0;
+            }
+            if(inventorySlot < 0) {
+                inventorySlot = maxSlots;
+            }
+            deactivateInventorySlots();
+            setInventoryItem(inventorySlot);
+        }
+    }
+
+    private void deactivateInventorySlots(){
+        foreach (Transform child in inventory.transform)
+        {
+            child.gameObject.SetActive(false);
+        }
+    }
+
+    private void setInventoryItem(int slot){
+        inventory.transform.GetChild(slot).gameObject.SetActive(true);
+        inventoryActive = inventory.transform.GetChild(slot).gameObject;
+        anim.SetBool("isMoving", false);
+    }
+
 
 
     public bool checkInPosition(Vector3Int tilePosition){
@@ -200,8 +241,8 @@ public class PlayerController : MonoBehaviour {
                 clothesAnim.SetBool("isMoving", false);
                 legsAnim.SetBool("isMoving", false);
             }
-            var speed = movementSpeed();
-            rbody.MovePosition(rbody.position + movement_vector * Time.deltaTime * speed);
+            // var speed = movementSpeed();
+            rbody.MovePosition(rbody.position + movement_vector * Time.deltaTime * walkSpeed);
         } else {
             anim.SetBool("isMoving", false);
         }
@@ -221,38 +262,38 @@ public class PlayerController : MonoBehaviour {
 
 
 
-    private bool isRunning(){
-        if (Input.GetKey("space") && stamina > 0 && holdingCrate == false){
-            return true;
-        }
-        return false;
-    }
+    // private bool isRunning(){
+    //     if (Input.GetKey("space") && stamina > 0 && holdingCrate == false){
+    //         return true;
+    //     }
+    //     return false;
+    // }
 
-    private void staminaCalculator(){
-        if (isRunning() || holdingCrate == true){
-            stamina -= Time.deltaTime;
-                if (stamina < 0) {
-                stamina = -6;
-				recharge = true;
-            }
-        }
-        else if (stamina < maxStamina && holdingCrate == false) {
-            stamina += Time.deltaTime;
-        }
-        if (isRunning() == false && stamina > -1 && stamina < 0 && holdingCrate == false){
-            stamina = 5;
-			recharge = false;
-        }
-    }
+    // private void staminaCalculator(){
+    //     if (isRunning() || holdingCrate == true){
+    //         stamina -= Time.deltaTime;
+    //             if (stamina < 0) {
+    //             stamina = -6;
+	// 			recharge = true;
+    //         }
+    //     }
+    //     else if (stamina < maxStamina && holdingCrate == false) {
+    //         stamina += Time.deltaTime;
+    //     }
+    //     if (isRunning() == false && stamina > -1 && stamina < 0 && holdingCrate == false){
+    //         stamina = 5;
+	// 		recharge = false;
+    //     }
+    // }
 
-    private int movementSpeed(){
-        walkSpeed = 2;
-        runSpeed = 4;
-        if(isRunning()){
-            return runSpeed;
-        }
-        return walkSpeed;
-    }
+    // private int movementSpeed(){
+    //     walkSpeed = 2;
+    //     runSpeed = 4;
+    //     if(isRunning()){
+    //         return runSpeed;
+    //     }
+    //     return walkSpeed;
+    // }
 
 
     // VECTOR TOOL

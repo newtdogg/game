@@ -27,17 +27,5 @@ public class WorldTile : Tile
 
     public int Cost { get; set; }
 
-//     public override void GetTileData(Vector3Int position, ITilemap tilemap, ref TileData tileData){
-//         tileData.sprite = farmSprites[0];
-//         Debug.Log("here");
-//     }
-
-//     public override void RefreshTile(Vector3Int position, ITilemap tilemap){
-//         for(int x = -1; x < 1; x++){
-//             for(int y = -1; y < 1; y++){
-//                 Vector3Int nPos = new Vector3Int(position.x)
-//             }
-//         }
-//     }
 
 }

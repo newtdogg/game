@@ -20,8 +20,9 @@ public class Stockpile
         foodCapacity = 0f;
         stats = new Dictionary<string,  Resource>();
         resourceList = new ResourceList();
-        stats.Add("grain", resourceList.grain);
-        stats.Add("lumber", resourceList.lumber);
+        stats.Add("Grain", resourceList.Grain);
+        stats.Add("Lumber", resourceList.Lumber);
+        stats.Add("Iron", resourceList.Iron);
     }
 
     public void updateStockpile(float population){
@@ -36,7 +37,7 @@ public class Stockpile
         var totalCapacity = 0f;
         foreach(KeyValuePair<string, Resource> resource in stats){
             var resourceDic = resource.Value;
-            if(resourceDic.group == "Food") {
+            if(resourceDic.group == "food") {
                 // Debug.Log(resourceDic.value);
                 resourceDic.value -= (Time.deltaTime/resourceDic.decayRate) * population;
                 foodCount += 1;
@@ -70,5 +71,13 @@ public class Stockpile
 
     public void updateStat(string stat, float amount) {
         stats[stat].value += amount;
+    }
+
+    public void calculateBuildingCost(Dictionary<string, int> cost) {
+        foreach(KeyValuePair<string, int> resource in cost) {
+            if(stats.ContainsKey(resource.Key)) {
+                stats[resource.Key].value -= resource.Value;
+            }
+        }
     }
 }

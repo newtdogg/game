@@ -4,14 +4,29 @@ using UnityEngine;
 
 public class ResourceList
 {
-    public Resource clay;
-    public Resource grain;
-    public Resource lumber;
+    public Resource Clay;
+    public Resource Grain;
+    public Resource Lumber;
+    public Resource Stone;
+    public Resource Sand;
+    public Resource IronOre;
+    public Resource CopperOre;
+    public Resource Iron;
+    public Resource Copper;
+    public Resource Coal;
    
     public ResourceList() {
-        clay = new Resource("Clay", 0f, 100f, 50f, "Structure", 0f);
-        grain = new Resource ("Grain", 100f, 200f, 50f, "Food", 10f);
-        lumber = new Resource ("Lumber", 50f, 200f, 50f, "Structure", 0f);
+        // type | value | maxCapacity | crate value | group | decayRate
+        Clay = new Resource("Clay", 10f, 100f, 10f, "structure", 0f);
+        Grain = new Resource ("Grain", 100f, 200f, 50f, "food", 10f);
+        Lumber = new Resource ("Lumber", 220f, 600f, 10f, "structure", 0f);
+        Stone = new Resource ("Stone", 50f, 200f, 10f, "structure", 0f);
+        Sand = new Resource ("Sand", 50f, 200f, 10f, "structure", 0f);
+        IronOre = new Resource ("Iron Ore", 50f, 200f, 10f, "structure", 0f);
+        CopperOre = new Resource ("Copper Ore", 50f, 200f, 10f, "structure", 0f);
+        Coal = new Resource ("Copper Ore", 50f, 200f, 10f, "structure", 0f);
+        Iron = new Resource ("Iron", 100f, 200f, 10f, "structure", 0f);
+        Copper = new Resource ("Copper", 50f, 200f, 10f, "structure", 0f);
     }
     
 }

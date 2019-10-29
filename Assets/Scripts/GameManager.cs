@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     public List<Text> questCanvasList;
 
     public Text timeText;
+    public int gameSpeed;
     private GameObject theSun;
     private Light sunLight;
     public Stockpile stockpile;
@@ -23,6 +24,7 @@ public class GameManager : MonoBehaviour
     private Button questButton;
     public Image questButtonImage;
     public int population;
+    public int populationMax;
     private Scene currentScene;
     public string currentSceneName;
     private Text foodDisplay;
@@ -57,6 +59,8 @@ public class GameManager : MonoBehaviour
             resourceListItems = new List<string>();
             resourceListCount = 0;
             population = 1;
+            populationMax = 5;
+            gameSpeed = 1;
         }
         else if (manager != this){
             Destroy(gameObject);

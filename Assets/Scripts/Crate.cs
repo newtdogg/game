@@ -20,7 +20,7 @@ public class Crate : MonoBehaviour {
         player = GameObject.Find("Player");
         controller = player.GetComponent<PlayerController>();
         crateSpriteRen = gameObject.GetComponent<SpriteRenderer>();
-        type = "grain";
+        type = "Grain";
         value = 200;
         maxValue = 200;
         decayRate = 3;
@@ -28,7 +28,7 @@ public class Crate : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        crateSpriteRen.sortingOrder = 200 - Mathf.RoundToInt(gameObject.transform.position.y * 10);
+        // crateSpriteRen.sortingOrder = 200 - Mathf.RoundToInt(gameObject.transform.position.y * 10);
         crateValue();
         if(gameObject.transform.GetChild(0).GetChild(0).gameObject.active == true){
             Vector3 pos = Camera.main.WorldToScreenPoint(gameObject.transform.position);

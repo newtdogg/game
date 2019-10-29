@@ -58,25 +58,15 @@ public class PlayerBasicIntro : MonoBehaviour
     }
 
     private void inventoryScroll(){
-        if(Input.GetAxis("Mouse ScrollWheel") > 0 && inventorySlot <= maxSlots){
-            deactivateInventorySlots();
-            if(inventorySlot == maxSlots){
+        if(Input.GetAxis("Mouse ScrollWheel") != 0){
+            inventorySlot += (int) (Input.GetAxis("Mouse ScrollWheel") * 10);
+            if(inventorySlot > maxSlots) {
                 inventorySlot = 0;
-            } else {
-                inventorySlot += 1;
             }
-            if(inventorySlot <= inventory.transform.childCount){
-                inventoryActive = inventory.transform.GetChild(inventorySlot).gameObject;
-            }
-            setInventoryItem(inventorySlot);
-        }
-        if(Input.GetAxis("Mouse ScrollWheel") < 0){
-            deactivateInventorySlots();
-            if(inventorySlot == 0){
+            if(inventorySlot < 0) {
                 inventorySlot = maxSlots;
-            } else {
-                inventorySlot -= 1;
             }
+            deactivateInventorySlots();
             setInventoryItem(inventorySlot);
         }
     }
