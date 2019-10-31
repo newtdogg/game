@@ -20,7 +20,6 @@ public class basicNPC : NPCobject
 
 
     void Start(){
-        npc = new NPC("clone", gameObject);
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
 
         populateDialogue();
@@ -53,15 +52,21 @@ public class basicNPC : NPCobject
     // Update is called once per frame
     void Update()
     {
-        speed = 5 + (npc.stats["rapidity"]/2);
-        hairAnim.SetBool("isMoving", false);
-        clothesAnim.SetBool("isMoving", false);
-        // npcAnimation();
-        if(npc.employment == "moving crates"){
-            npcMovement(rbody);
+        if (npc != null) {
+            speed = 5 + (npc.stats["rapidity"]/2);
+            // hairAnim.SetBool("isMoving", false);
+            // clothesAnim.SetBool("isMoving", false);
+            if(npc.employment == "moving crates"){
+                npcMovement(rbody);
+            } else {
+                hairAnim.SetBool("isMoving", false);
+                bodyAnim.SetBool("isMoving", false);
+                clothesAnim.SetBool("isMoving", false);
+                legsAnim.SetBool("isMoving", false);
+            }
+            npcAnimation(movementDirection);
         }
         // Vector2 movement_vector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        npcAnimation(movementDirection);
         
     }
 
@@ -73,31 +78,19 @@ public class basicNPC : NPCobject
             // } else {
             //     anim.SetBool("isHoldingCrate", false);
             // }
-                hairAnim.SetBool("isMoving", true);
-                hairAnim.SetFloat("input_X", movement_vector.x);
-                hairAnim.SetFloat("input_Y", movement_vector.y);
-                bodyAnim.SetBool("isMoving", true);
-                bodyAnim.SetFloat("input_X", movement_vector.x);
-                bodyAnim.SetFloat("input_Y", movement_vector.y);
-                clothesAnim.SetBool("isMoving", true);
-                clothesAnim.SetFloat("input_X", movement_vector.x);
-                clothesAnim.SetFloat("input_Y", movement_vector.y);
-                legsAnim.SetBool("isMoving", true);
-                legsAnim.SetFloat("input_X", movement_vector.x);
-                legsAnim.SetFloat("input_Y", movement_vector.y);
-            } else {
-                // anim.SetBool("isMoving", false);
-                hairAnim.SetBool("isMoving", false);
-                bodyAnim.SetBool("isMoving", false);
-                clothesAnim.SetBool("isMoving", false);
-                legsAnim.SetBool("isMoving", false);
-            }
-            // var speed = movementSpeed();
-            rbody.MovePosition(rbody.position + movement_vector * Time.deltaTime * speed);
-        // } else {
-        //     anim.SetBool("isMoving", false);
-        // }
-
+            hairAnim.SetBool("isMoving", true);
+            hairAnim.SetFloat("input_X", movement_vector.x);
+            hairAnim.SetFloat("input_Y", movement_vector.y);
+            bodyAnim.SetBool("isMoving", true);
+            bodyAnim.SetFloat("input_X", movement_vector.x);
+            bodyAnim.SetFloat("input_Y", movement_vector.y);
+            clothesAnim.SetBool("isMoving", true);
+            clothesAnim.SetFloat("input_X", movement_vector.x);
+            clothesAnim.SetFloat("input_Y", movement_vector.y);
+            legsAnim.SetBool("isMoving", true);
+            legsAnim.SetFloat("input_X", movement_vector.x);
+            legsAnim.SetFloat("input_Y", movement_vector.y);
+        }
     }
 
     public void generateNPCSprites() {

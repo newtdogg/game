@@ -140,23 +140,29 @@ public class EventController : MonoBehaviour
     }
 
 
-    public void npcUILoad(NPC npc){
+    public void npcUILoad(NPC npc, Sprite sprite){
         // pause();
         gameObject.transform.GetChild(2).gameObject.SetActive(true);
         var name = npcUI.transform.GetChild(0).gameObject.GetComponent<Text>();
-        npcUI.transform.GetChild(1).gameObject.GetComponent<Image>().sprite = npc.gameObject.GetComponent<SpriteRenderer>().sprite;
+        Debug.Log($"name: {npc.name}, employment:{npc.employment}");
+        npcUI.transform.GetChild(1).gameObject.GetComponent<Image>().sprite = sprite;
         npcUI.transform.GetChild(2).gameObject.GetComponent<Text>().text = $"strength: {npc.stats["strength"]}\n acuity: {npc.stats["acuity"]}\n rapidity: {npc.stats["rapidity"]}\n dexterity: {npc.stats["dexterity"]}\n fortitude: {npc.stats["dexterity"]}";
-        npcUI.transform.GetChild(3).GetComponent<Button>().onClick.AddListener(() => npc.employment = "idle");
-        npcUI.transform.GetChild(4).GetComponent<Button>().onClick.AddListener(() => npc.employment = "moving crates");
+        npcUI.transform.GetChild(3).GetComponent<Button>().onClick.RemoveAllListeners();
+        npcUI.transform.GetChild(3).GetComponent<Button>().onClick.AddListener(() => setEmployment(npc, "idle"));
+        npcUI.transform.GetChild(4).GetComponent<Button>().onClick.RemoveAllListeners();
+        npcUI.transform.GetChild(4).GetComponent<Button>().onClick.AddListener(() => setEmployment(npc, "moving crates"));
+        npcUI.transform.GetChild(5).GetComponent<Button>().onClick.RemoveAllListeners();
         npcUI.transform.GetChild(5).GetComponent<Button>().onClick.AddListener(() => gameObject.transform.GetChild(2).gameObject.SetActive(false));
-        Debug.Log(npc.employment);
         name.text = npc.name;
         npcUIactive = true;
         timer += Time.deltaTime;
         // npcUI.transform.GetChild(1).
-        Debug.Log($"loaded {name.text}");
     }
 
+    private void setEmployment(NPC npc, string employment) {
+        npc.employment = employment;
+        Debug.Log(npc.name);
+    }
     private void dropCrate(Vector3Int mouseVec) {
 		var currentPosition = playerController.transform.position;
         playerController.heldCrate.transform.position = new Vector3(
@@ -176,16 +182,19 @@ public class EventController : MonoBehaviour
                 gameManager.stockpile.foodSurplus = 0;
                 var newNPC = Instantiate(npcClone, new Vector3(24, 24, 0),  Quaternion.Euler(0,0,0));
                 Debug.Log("new NPC");
-                var npc = new NPC("larry", newNPC);
+                var npc = new NPC("larry");
                 int num = ran.Next(1, 100);
                 var r = 118 + (1.06f * num);
                 var g = 98 + (1.16f * num);
                 var b = 66 + (1.36f * num); 
                 newNPC.transform.GetChild(1).gameObject.GetComponent<Renderer>().material.SetColor("skin", new Color(r, g, b));
                 var npcScript = newNPC.GetComponent<basicNPC>();
-                npcScript.status = "idle";
                 npcScript.npc = npc;
+                npcScript.name = npc.name;
+                // npcScript.status = "idle";
+                // npcScript.npc = npc;
                 gameManager.stockpile.foodSupplyThreshold += 10;
+                // Debug.Log(newNPC.GetComponent<basicNPC>().npc.name);
             } else {
                 // This should appear as a warning
                 Debug.Log("Need more housing space");

@@ -11,13 +11,10 @@ public class NPC
     public Dictionary<string, int> stats;
     public string employment;
     public string statOrder;
-    public GameObject gameObject;
     public System.Random ran = new System.Random();
 
-    public NPC(string npcName, GameObject gObject){
+    public NPC(string npcName){
         
-        gameObject = gObject;
-
         int st = ran.Next(1, 5);
         int ac = ran.Next(1, 5);
         int rp = ran.Next(1, 5);

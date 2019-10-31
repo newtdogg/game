@@ -16,7 +16,7 @@ public class mainNPC : NPCobject
     // Start is called before the first frame update
     void Start()
     {
-        npc = new NPC("Barry Onions", gameObject);
+        npc = new NPC("Barry Onions");
         isMoving = false;
         dialogueManager = GameObject.Find("Dialogue").GetComponent<DialogueManager>();
         rbody = GetComponent<Rigidbody2D>();
@@ -38,6 +38,7 @@ public class mainNPC : NPCobject
         // speed = inContact ? 10 : 5;
         // if(gameManager.questManager.Quests["buildWoodcuttersHut"]["status"] == "complete") {
             // Debug.Log(inContact);
+        
         if(npc.employment == "moving crates"){
             npcMovement(rbody);
         }
