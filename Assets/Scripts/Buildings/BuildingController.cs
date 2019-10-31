@@ -16,7 +16,7 @@ public class BuildingController : MonoBehaviour
 	private int width;
 	private int height;
 	private int padding;
-    private basicNPC[] allBasicNPCs;
+    private List<basicNPC> allBasicNPCs;
 
     private Vector3Int tileVector;
     private GameObject boundaries;
@@ -304,12 +304,15 @@ public class BuildingController : MonoBehaviour
             GameObject.Destroy(child.gameObject);
         }
 
-        allBasicNPCs = FindObjectsOfType<basicNPC>();		
-        var idleNpcCount = 0;		
-        for(var i = 0; i < allBasicNPCs.Length; i++){		
-            if(allBasicNPCs[i].status == "idle"){		
-                idleNpcCount += 1;		
-            }		
+        var npcArray = FindObjectsOfType<basicNPC>();
+        allBasicNPCs = new List<basicNPC>(npcArray);
+        allBasicNPCs.RemoveAt(allBasicNPCs.Count - 1);	
+        var idleNpcCount = 0;
+            for(var i = 0; i < allBasicNPCs.Count; i++){		
+                if(allBasicNPCs[i].npc.employment == "idle"){		
+                    idleNpcCount += 1;		
+                }		
+
         }		
         if(idleNpcCount == 0) {		
             return;		
@@ -362,8 +365,8 @@ public class BuildingController : MonoBehaviour
 
     private void npcSelectionScreen(BuildingObject building){
         gameObject.transform.GetChild(1).gameObject.SetActive(true);
-        for(var i = 0; i < allBasicNPCs.Length; i++){
-            if(allBasicNPCs[i].status == "idle"){
+        for(var i = 0; i < allBasicNPCs.Count; i++){
+            if(allBasicNPCs[i].npc.employment == "idle"){
                 GameObject newButton = Instantiate(gameObject.transform.GetChild(2).gameObject, new Vector3(270 + (i * 50), 280, 0),  Quaternion.Euler(0,0,0));
                 newButton.GetComponent<RectTransform>().sizeDelta = new Vector2(50, 60);
                 Button butt = newButton.GetComponent<Button>();

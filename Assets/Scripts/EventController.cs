@@ -183,6 +183,7 @@ public class EventController : MonoBehaviour
                 var newNPC = Instantiate(npcClone, new Vector3(24, 24, 0),  Quaternion.Euler(0,0,0));
                 Debug.Log("new NPC");
                 var npc = new NPC("larry");
+                npc.employment = "idle";
                 int num = ran.Next(1, 100);
                 var r = 118 + (1.06f * num);
                 var g = 98 + (1.16f * num);

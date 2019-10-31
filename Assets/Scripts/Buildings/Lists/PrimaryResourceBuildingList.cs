@@ -54,8 +54,9 @@ public class PrimaryResourceBuildingList : BList
                 { "Lumber", resourceList.Lumber } 
         };
         WoodcuttersHut.spawnChance = new Dictionary<string, int>{ 
-                { "Lumber", 50  } 
+                { "Lumber", 20  } 
         };
+        WoodcuttersHut.upgradesTo = new List<string>(){};
 
         var StonecuttersHut =  new ResourceBuilding(
             "Stonecutter's Hut", "Primary Resource", "Secondary Resource", "Produces stone", true, 2, 2, 
@@ -76,6 +77,7 @@ public class PrimaryResourceBuildingList : BList
                 { "Sand", 15 },
                 { "Clay", 5 }
         };
+        StonecuttersHut.upgradesTo = new List<string>(){};
 
         var Mine =  new ResourceBuilding(
             "Mine", "Primary Resource", "Secondary Resource", "Produces wood", true, 2, 2, 
@@ -100,6 +102,7 @@ public class PrimaryResourceBuildingList : BList
                 { "Stone", 20 },
                 { "Sand", 20 }
         };
+        Mine.upgradesTo = new List<string>(){};
 
         buildings.Add("Croft", Croft);
         buildings.Add("Woodcutter's Hut", WoodcuttersHut);

@@ -34,7 +34,7 @@ public class BuildingObject : MonoBehaviour
     {
         // building = new Building("", "", "", "", true, 1, 1, new Dictionary<string, int>{});
         // building.spawnChance = new Dictionary<string, int>{};
-        building.upgradesTo = new List<string>(){};
+        // building.upgradesTo = new List<string>(){};
 
         crateCount = 0;
         crateObject = GameObject.Find("CrateClone");
@@ -132,6 +132,9 @@ public class BuildingObject : MonoBehaviour
                 crate.eventController = eventController;
                 crate.controller = playerController;
                 crateCount += 1;
+                if(crateCount % 5 == 0) {
+                    cutTree = true;
+                }
                 crate.value = building.startingResources[resource.Key].value;
                 crate.type = resource.Key;
                 newCrate.GetComponent<SpriteRenderer>().sortingOrder = 10;
@@ -164,23 +167,22 @@ public class BuildingObject : MonoBehaviour
     }
 
     private void removeTrees() {
-        if(building.type == "Woodcutter's Hut") {
-            if(crateCount % 5 == 0) {
-                for(var y = -3; y < (dimensions["height"] + 3); y++){
-                    for(var x = -3; x < (dimensions["width"] + 3); x++){
-                        var tiles = GameTiles.instance.tiles;
-                        var worldPoint = tilePositions[0];
-                        var tileVector = new Vector3Int((int) worldPoint.x + x,(int) worldPoint.y + y, 0);
-                        Debug.Log(tileVector);
-                        var worldTile = tiles[tileVector];
-                        if (worldTile.Type == "tree"){
-                            // returns class Tile at given coords
-                            worldTile.Type = "grass";
-                            treesTilemap.SetTile(tileVector, null);
-                            boundariesTilemap.SetTile(tileVector, null);
-                            // worldTile.TilemapMember.SetTileFlags(worldTile.LocalPlace, TileFlags.None);
-                            return;
-                        }
+        if(building.name == "Woodcutter's Hut" && cutTree) {
+            for(var y = -3; y < (building.height + 3); y++){
+                for(var x = -3; x < (building.width + 3); x++){
+                    var tiles = GameTiles.instance.tiles;
+                    var worldPoint = tilePositions[0];
+                    var tileVector = new Vector3Int((int) worldPoint.x + x,(int) worldPoint.y + y, 0);
+                    Debug.Log(tileVector);
+                    var worldTile = tiles[tileVector];
+                    if (worldTile.Type == "tree"){
+                        // returns class Tile at given coords
+                        worldTile.Type = "grass";
+                        treesTilemap.SetTile(tileVector, null);
+                        boundariesTilemap.SetTile(tileVector, null);
+                        // worldTile.TilemapMember.SetTileFlags(worldTile.LocalPlace, TileFlags.None);
+                        cutTree = false;
+                        return;
                     }
                 }
             }
