@@ -18,7 +18,7 @@ public class ResourceList
     public ResourceList() {
         // type | value | maxCapacity | crate value | group | decayRate
         Clay = new Resource("Clay", 10f, 100f, 10f, "structure", 0f);
-        Grain = new Resource ("Grain", 100f, 200f, 50f, "food", 10f);
+        Grain = new Resource ("Grain", 100f, 200f, 2000f, "food", 10f);
         Lumber = new Resource ("Lumber", 220f, 600f, 10f, "structure", 0f);
         Stone = new Resource ("Stone", 50f, 200f, 10f, "structure", 0f);
         Sand = new Resource ("Sand", 50f, 200f, 10f, "structure", 0f);

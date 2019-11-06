@@ -11,18 +11,12 @@ public class GameManager : MonoBehaviour
     public WorldClock clock;
     public Text dayText;
 
-    public QuestManager questManager;
-    private GameObject questCanvas;
-    public List<Text> questCanvasList;
-
     public Text timeText;
     public int gameSpeed;
     private GameObject theSun;
     private Light sunLight;
     public Stockpile stockpile;
-    public GameObject questButtonObj;
-    private Button questButton;
-    public Image questButtonImage;
+
     public int population;
     public int populationMax;
     private Scene currentScene;
@@ -43,15 +37,7 @@ public class GameManager : MonoBehaviour
         if(manager == null){
             DontDestroyOnLoad(gameObject);
             manager = this;
-            questManager = new QuestManager();
-            questCanvas = GameObject.Find("QuestCanvas");
-            questManager.populateQuests();
-            questCanvasList = new List<Text>();
-            questCanvasList.Add(questCanvas.transform.GetChild(0).GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<Text>());
-            questCanvasList.Add(questCanvas.transform.GetChild(0).GetChild(0).gameObject.transform.GetChild(1).gameObject.GetComponent<Text>());
-            questCanvasList.Add(questCanvas.transform.GetChild(0).GetChild(0).gameObject.transform.GetChild(2).gameObject.GetComponent<Text>());
-            setBulletPoints(questCanvasList);
-            questCanvas.transform.GetChild(0).gameObject.SetActive(false);
+            
             foodDisplay = gameObject.transform.GetChild(2).GetChild(1).gameObject.GetComponent<Text>();
             surplus = gameObject.transform.GetChild(2).GetChild(2).gameObject.GetComponent<Text>();
             resourceListClone = gameObject.transform.GetChild(2).GetChild(3).gameObject;
@@ -67,11 +53,6 @@ public class GameManager : MonoBehaviour
         }
 		player = GameObject.Find("Player");
         populateTiles();
-        questButtonObj = gameObject.transform.GetChild(1).gameObject;
-        questButtonObj.SetActive(false);
-        questButton = questButtonObj.GetComponent<Button>();
-        questButtonImage = questButtonObj.GetComponent<Image>();
-        questButton.onClick.AddListener(() => questcanvasDisplayToggle());
 		currentScene = SceneManager.GetActiveScene();
 		currentSceneName = currentScene.name;
     }
@@ -84,7 +65,6 @@ public class GameManager : MonoBehaviour
             }
             currentScene = SceneManager.GetActiveScene();
             currentSceneName = currentScene.name;
-            toggleQuestCanvas();
 			if(clock != null){
 				if(clock.calculateTime() == true){
 					writeDateTime();
@@ -97,39 +77,13 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void setBulletPoints(List<Text> quests){
-        foreach(Text quest in quests){
-            if(quest.text == ""){
-                quest.transform.GetChild(0).gameObject.SetActive(false);
-            } else {
-                quest.transform.GetChild(0).gameObject.SetActive(true);
-            }
-        }
-    }
+    
 
 
-    private void toggleQuestCanvas(){
-        if(Input.GetKeyDown(KeyCode.Tab)){
-            questcanvasDisplayToggle();
-        }
-    }
+    
 
     public void npcGenerator(){
 
-    }
-
-
-    private void questcanvasDisplayToggle(){
-        setBulletPoints(questCanvasList);
-        if(questManager.notification == true){
-            questButtonImage.color = Color.clear;
-            questManager.notification = false;
-        }
-        if(questCanvas.transform.GetChild(0).gameObject.active == true){
-            questCanvas.transform.GetChild(0).gameObject.SetActive(false);
-        } else {
-            questCanvas.transform.GetChild(0).gameObject.SetActive(true);
-        }
     }
 
     public void sunPosition(){

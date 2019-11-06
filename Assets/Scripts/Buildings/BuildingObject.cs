@@ -13,6 +13,8 @@ public class BuildingObject : MonoBehaviour
     public PlayerController playerController;
     public NPC assignedNPC;
     private Tilemap boundariesTilemap;
+    private Tilemap grassTilemap;
+
     public Building building;
     public Dictionary <float, string> boundaries;
     private Tilemap treesTilemap;
@@ -42,6 +44,7 @@ public class BuildingObject : MonoBehaviour
         playerController = player.GetComponent<PlayerController>();
         eventController = GameObject.Find("EventControllerCanvas").GetComponent<EventController>();
         boundariesTilemap = GameObject.Find("Grid").transform.GetChild(1).gameObject.GetComponent<Tilemap>();
+        grassTilemap = GameObject.Find("Grid").transform.GetChild(0).gameObject.GetComponent<Tilemap>();
         treesTilemap = GameObject.Find("Grid").transform.GetChild(5).gameObject.GetComponent<Tilemap>();
         buildingCanvas = GameObject.Find("BuildingCanvas");
         spawnChance = new Dictionary<string, int>();
@@ -120,7 +123,7 @@ public class BuildingObject : MonoBehaviour
 
     private void generateCrates() {
         foreach(KeyValuePair<string, int> resource in spawnChance){
-            System.Random ran = new System.Random();
+            System.Random ran = new System.Random(System.DateTime.Now.Millisecond);
             var crateSpawnChanceInt = ran.Next(1, resource.Value);
             if(crateSpawnChanceInt == 1){
                 var newCrate = Instantiate(crateObject, new Vector3 (tilePositions[0].x, tilePositions[0].y - 0.5f, 0), Quaternion.Euler(0,0,0));
@@ -168,12 +171,55 @@ public class BuildingObject : MonoBehaviour
 
     private void removeTrees() {
         if(building.name == "Woodcutter's Hut" && cutTree) {
-            for(var y = -3; y < (building.height + 3); y++){
-                for(var x = -3; x < (building.width + 3); x++){
-                    var tiles = GameTiles.instance.tiles;
-                    var worldPoint = tilePositions[0];
-                    var tileVector = new Vector3Int((int) worldPoint.x + x,(int) worldPoint.y + y, 0);
-                    Debug.Log(tileVector);
+            var padding = 3;
+            var tiles = GameTiles.instance.tiles;
+            var worldPoint = tilePositions[0];
+            var count = 0f;
+            for(var distOut = 1; distOut < padding + 1; distOut++) {
+                for(var left = 1 - distOut; left < building.height + distOut; left++) {
+                    var tileVector = new Vector3Int((int) worldPoint.x - distOut,(int) worldPoint.y + left, 0);
+                    var worldTile = tiles[tileVector];
+                    if (worldTile.Type == "tree"){
+                        // returns class Tile at given coords
+                        worldTile.Type = "grass";
+                        treesTilemap.SetTile(tileVector, null);
+                        boundariesTilemap.SetTile(tileVector, null);
+                        // worldTile.TilemapMember.SetTileFlags(worldTile.LocalPlace, TileFlags.None);
+                        cutTree = false;
+                        return;
+                    }
+                    // grassTilemap.SetTileFlags(worldTile.LocalPlace, TileFlags.None);
+                    // grassTilemap.SetColor(worldTile.LocalPlace, new Color(0f, count, 1f));
+                    // count += 0.02f;
+                }
+                for(var top = 1 - distOut; top < building.width + distOut; top++) {
+                    var tileVector = new Vector3Int((int) worldPoint.x + top,(int) worldPoint.y + building.height + distOut - 1, 0);
+                    var worldTile = tiles[tileVector];
+                    if (worldTile.Type == "tree"){
+                        // returns class Tile at given coords
+                        worldTile.Type = "grass";
+                        treesTilemap.SetTile(tileVector, null);
+                        boundariesTilemap.SetTile(tileVector, null);
+                        // worldTile.TilemapMember.SetTileFlags(worldTile.LocalPlace, TileFlags.None);
+                        cutTree = false;
+                        return;
+                    }
+                }
+                for(var right = 1 - distOut; right < building.height + distOut; right++) {
+                    var tileVector = new Vector3Int((int) worldPoint.x + building.width + distOut - 1,(int) worldPoint.y + right, 0);
+                    var worldTile = tiles[tileVector];
+                    if (worldTile.Type == "tree"){
+                        // returns class Tile at given coords
+                        worldTile.Type = "grass";
+                        treesTilemap.SetTile(tileVector, null);
+                        boundariesTilemap.SetTile(tileVector, null);
+                        // worldTile.TilemapMember.SetTileFlags(worldTile.LocalPlace, TileFlags.None);
+                        cutTree = false;
+                        return;
+                    }
+                }
+                for(var bottom = 1 - distOut; bottom < building.width + distOut + 1; bottom++) {
+                    var tileVector = new Vector3Int((int) worldPoint.x + bottom - 1,(int) worldPoint.y - distOut, 0);
                     var worldTile = tiles[tileVector];
                     if (worldTile.Type == "tree"){
                         // returns class Tile at given coords
